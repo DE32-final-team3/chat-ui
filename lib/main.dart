@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,7 +30,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final String user1 = "t2"; // 현재 사용자
   final String user2 = "t1"; // 상대 사용자
-  final String serverUrl = "http://localhost:8000"; // 서버 URL
 
   @override
   void initState() {
@@ -69,20 +69,18 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _sendMessage() async {
+  void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       final message = _controller.text;
+      print(message);
       setState(() {
         _messages.add({"sender": "Me", "message": message});
       });
       _controller.clear();
 
+      // WebSocket을 통해 메시지 전송
       try {
-        await http.post(
-          Uri.parse(
-              '$serverUrl/send/t1-t2?sender=$user1&receiver=$user2&message=$message'),
-          headers: {"Content-Type": "application/json"},
-        );
+        _channel.sink.add('$message');
       } catch (e) {
         print("Error sending message: $e");
       }
