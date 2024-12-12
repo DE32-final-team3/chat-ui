@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'chat.dart'; // ChatScreen을 import
 
 void main() {
   runApp(MyApp());
@@ -12,134 +12,62 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Chat',
-      home: ChatScreen(),
+      home: UserInputScreen(), // 초기 화면 설정
     );
   }
 }
 
-class ChatScreen extends StatefulWidget {
+class UserInputScreen extends StatefulWidget {
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  _UserInputScreenState createState() => _UserInputScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
-  final _controller = TextEditingController();
-  late WebSocketChannel _channel;
-  List<Map<String, String>> _messages = [];
-  String _statusMessage = 'Connecting to server...';
-
-  final String user1 = "t2"; // 현재 사용자
-  final String user2 = "t1"; // 상대 사용자
-
-  @override
-  void initState() {
-    super.initState();
-    _connectWebSocket();
-  }
-
-  void _connectWebSocket() {
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://localhost:8000/ws/$user1/$user2'),
-    );
-
-    _channel.stream.listen(
-      (message) {
-        setState(() {
-          final decodedMessage = message.split(': ');
-          _messages.add({
-            "sender": decodedMessage[0],
-            "message": decodedMessage[1],
-          });
-        });
-      },
-      onDone: () {
-        setState(() {
-          _statusMessage = 'Disconnected from the server';
-        });
-      },
-      onError: (error) {
-        setState(() {
-          _statusMessage = 'Error: $error';
-        });
-      },
-    );
-
-    setState(() {
-      _statusMessage = 'Connected to server';
-    });
-  }
-
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      final message = _controller.text;
-      print(message);
-      setState(() {
-        _messages.add({"sender": "Me", "message": message});
-      });
-      _controller.clear();
-
-      // WebSocket을 통해 메시지 전송
-      try {
-        _channel.sink.add('$message');
-      } catch (e) {
-        print("Error sending message: $e");
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _channel.sink.close();
-    super.dispose();
-  }
+class _UserInputScreenState extends State<UserInputScreen> {
+  final TextEditingController _user1Controller = TextEditingController();
+  final TextEditingController _user2Controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Flutter Chat')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(_statusMessage,
-                style: TextStyle(fontSize: 16, color: Colors.grey)),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return ListTile(
-                  title: Text(
-                    "${message['sender']}: ${message['message']}",
-                    style: TextStyle(
-                      color: message['sender'] == "Me"
-                          ? Colors.blue
-                          : Colors.black,
+      appBar: AppBar(
+          title: Text('Enter Users'),
+          backgroundColor: const Color.fromARGB(255, 145, 115, 214)),
+      backgroundColor: const Color.fromARGB(255, 193, 178, 227),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _user1Controller,
+              decoration: InputDecoration(labelText: 'Sender (User 1)'),
+            ),
+            TextField(
+              controller: _user2Controller,
+              decoration: InputDecoration(labelText: 'Receiver (User 2)'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                final user1 = _user1Controller.text.trim();
+                final user2 = _user2Controller.text.trim();
+                if (user1.isNotEmpty && user2.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ChatScreen(user1: user1, user2: user2),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please enter both users.')),
+                  );
+                }
               },
+              child: Text('Start Chat'),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(hintText: 'Enter message'),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
