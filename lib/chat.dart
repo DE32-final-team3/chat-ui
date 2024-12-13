@@ -17,6 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late WebSocketChannel _channel;
   List<Map<String, String>> _messages = [];
   String _statusMessage = 'Connecting to server...';
+  String? servIP = dotenv.env['SERVER_IP'];
 
   @override
   void initState() {
@@ -26,8 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = WebSocketChannel.connect(
-      Uri.parse(
-          'ws://${dotenv.env['SERVER_IP']}:8000/ws/${widget.user1}/${widget.user2}'),
+      Uri.parse('ws://${servIP}:8000/ws/${widget.user1}/${widget.user2}'),
     );
 
     _channel.stream.listen(
