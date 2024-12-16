@@ -136,7 +136,7 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 15),
           ],
         ),
-        backgroundColor: const Color.fromARGB(255, 193, 178, 227),
+        backgroundColor: const Color.fromARGB(79, 84, 84, 84),
         body: Column(
           children: [
             Padding(
@@ -185,8 +185,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Text(
                                     message['message']!,
                                     style: TextStyle(
-                                      color:
-                                          isUser ? Colors.white : Colors.black,
+                                      color: isUser
+                                          ? Colors.white
+                                          : const Color.fromARGB(255, 0, 0, 0),
                                     ),
                                   ),
                                 ],
