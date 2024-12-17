@@ -43,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${servIP}:8000/ws/${widget.user1}/${widget.user2}'),
+      Uri.parse('wss://cine-mate.site:8000/ws/${widget.user1}/${widget.user2}'),
     );
 
     _channel.stream.listen(
@@ -97,6 +97,70 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  Widget _buildProfileImage({double radius = 20}) {
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.grey[300],
+      child: ClipOval(
+        child: Image.asset(
+          'assets/default_profile.jpg',
+          width: radius * 2,
+          height: radius * 2,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
+  void _showOpponentProfileDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildProfileImage(radius: 50),
+                const SizedBox(height: 16),
+                Text(
+                  widget.user2,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 145, 115, 214),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    child: Text(
+                      '닫기',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -114,7 +178,16 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Chat: ${widget.user1} & ${widget.user2}'),
+          title: GestureDetector(
+            onTap: () => _showOpponentProfileDialog(context),
+            child: Row(
+              children: [
+                _buildProfileImage(radius: 20),
+                const SizedBox(width: 10),
+                Text('Chat: ${widget.user2}'),
+              ],
+            ),
+          ),
           backgroundColor: const Color.fromARGB(255, 145, 115, 214),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
