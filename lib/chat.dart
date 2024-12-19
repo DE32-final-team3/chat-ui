@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -19,7 +18,6 @@ class _ChatScreenState extends State<ChatScreen> {
   late WebSocketChannel _channel;
   final List<Map<String, String>> _messages = [];
   String _statusMessage = 'Connecting to server...';
-  String? servIP = dotenv.env['SERVER_IP'];
   bool _isConnected = true;
 
   @override
@@ -43,7 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _connectWebSocket() {
     _channel = WebSocketChannel.connect(
-      Uri.parse('wss://cine-mate.site:8000/ws/${widget.user1}/${widget.user2}'),
+      Uri.parse(
+          'wss://websocket.cine-mate.site/ws/${widget.user1}/${widget.user2}'),
     );
 
     _channel.stream.listen(
@@ -184,7 +183,7 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 _buildProfileImage(radius: 20),
                 const SizedBox(width: 10),
-                Text('Chat: ${widget.user2}'),
+                Text(widget.user2),
               ],
             ),
           ),

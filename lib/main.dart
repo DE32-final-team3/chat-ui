@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'chat.dart'; // ChatScreen을 import
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env"); // .env 파일 로드
   runApp(MyApp());
 }
 
